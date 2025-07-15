@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"ojeg/internal/user/domain"
-	"ojeg/internal/user/repository"
-	"ojeg/internal/user/usecase"
+	"ojeg/internal/domain"
+	"ojeg/internal/repository"
+	"ojeg/internal/usecase"
 	"ojeg/pkg/errors"
 
 	"golang.org/x/crypto/bcrypt"
@@ -16,7 +16,7 @@ type userService struct {
 	userRepo repository.UserRepository
 }
 
-func NewUserService(userRepo repository.UserRepository) usecase.UserUsecase {
+func UserService(userRepo repository.UserRepository) usecase.UserUsecase {
 	return &userService{userRepo: userRepo}
 }
 

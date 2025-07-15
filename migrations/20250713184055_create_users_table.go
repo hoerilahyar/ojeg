@@ -1,7 +1,7 @@
 package migrations
 
 import (
-	"ojeg/internal/user/domain"
+	"ojeg/internal/domain"
 
 	"gorm.io/gorm"
 )

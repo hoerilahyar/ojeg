@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"ojeg/internal/user/domain"
-	"ojeg/internal/user/usecase"
+	"ojeg/internal/domain"
+	"ojeg/internal/usecase"
 	"ojeg/pkg/errors"
 	"ojeg/pkg/response"
 
@@ -25,7 +25,7 @@ func NewUserHandler(u usecase.UserUsecase) *UserHandler {
 func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.usecase.ListUsers(r.Context())
 	if err != nil {
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, err)
 		return
 	}
 
@@ -37,19 +37,14 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Parse input JSON to User struct
 	var user domain.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, errors.ErrInvalidPayload)
 		return
 	}
 
 	// Call the correct method
 	err := h.usecase.CreateUser(r.Context(), &user)
 	if err != nil {
-		appErr, ok := err.(*errors.AppError)
-		if ok {
-			response.Error(w, appErr)
-			return
-		}
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, err)
 		return
 	}
 
@@ -61,13 +56,13 @@ func (h *UserHandler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	idStr := mux.Vars(r)["id"]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, errors.ErrValNotString)
 		return
 	}
 
 	user, err := h.usecase.GetUserByID(r.Context(), uint(id))
 	if err != nil {
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, err)
 		return
 	}
 
@@ -79,22 +74,21 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	idStr := mux.Vars(r)["id"]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, errors.ErrValNotString)
 		return
 	}
 
 	var user domain.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, errors.ErrInvalidPayload)
 		return
 	}
 	user.ID = uint(id)
 
 	err = h.usecase.UpdateUser(r.Context(), &user)
 	if err != nil {
-		http.Error(w, "Failed to update user", http.StatusInternalServerError)
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, err)
 		return
 	}
 
@@ -106,12 +100,12 @@ func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	idStr := mux.Vars(r)["id"]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, errors.ErrInvalidPayload)
 		return
 	}
 
 	if err := h.usecase.DeleteUser(r.Context(), uint(id)); err != nil {
-		response.Error(w, errors.ErrInternalError)
+		response.Error(w, err)
 		return
 	}
 

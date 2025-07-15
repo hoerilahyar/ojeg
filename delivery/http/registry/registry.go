@@ -1,23 +1,42 @@
 package registry
 
 import (
+	"ojeg/configs"
 	"ojeg/delivery/http/handler"
 	"ojeg/infrastructure/db"
-	"ojeg/internal/user/service"
+	"ojeg/infrastructure/jwt"
+	"ojeg/internal/service"
+	"ojeg/internal/usecase"
+	"os"
 )
 
 type HandlerRegistry struct {
 	UserHandler *handler.UserHandler
-	// Tambahkan handler lain nanti: DriverHandler, BookingHandler, etc
+	AuthHandler *handler.AuthHandler
 }
 
 func NewHandlerRegistry(database *db.DB) *HandlerRegistry {
-	// User module wiring
+
+	secret := os.Getenv("JWT_SECRET")
+	issuer := configs.LoadConfig().AppName
+
+	// Repositories
 	userRepo := db.NewUserRepository(database)
-	userService := service.NewUserService(userRepo)
-	userHandler := handler.NewUserHandler(userService)
+
+	// Services
+	userService := service.UserService(userRepo)
+	authService := service.AuthService(userRepo, jwt.NewJWTService(secret, issuer))
+
+	// Usecases
+	userUsecase := usecase.UserUsecase(userService)
+	authUsecase := usecase.AuthUsecase(authService)
+
+	// Handlers
+	userHandler := handler.NewUserHandler(userUsecase)
+	authHandler := handler.NewAuthHandler(authUsecase)
 
 	return &HandlerRegistry{
 		UserHandler: userHandler,
+		AuthHandler: authHandler,
 	}
 }

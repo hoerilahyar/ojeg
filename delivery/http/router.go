@@ -28,7 +28,10 @@ func NewRouter(r *registry.HandlerRegistry) http.Handler {
 	user.HandleFunc("/{id:[0-9]+}", r.UserHandler.UpdateUser).Methods("PUT")
 	user.HandleFunc("/{id:[0-9]+}", r.UserHandler.DeleteUser).Methods("DELETE")
 
-	// Tambahkan handler lainnya di sini nanti: driver, booking, payment, dll
+	// Group: /auth
+	auth := api.PathPrefix("/auth").Subrouter()
+	auth.HandleFunc("/register", r.AuthHandler.Register).Methods("POST")
+	auth.HandleFunc("/login", r.AuthHandler.Login).Methods("POST")
 
 	return router
 }

@@ -9,6 +9,7 @@ var (
 	ErrNotFound        = New(705, "Resource not found", 404)
 	ErrConflict        = New(706, "Conflict detected", 409)
 	ErrTooManyRequests = New(707, "Too many requests", 429)
+	ErrValNotString    = New(708, "Not String aceppted", 400)
 
 	// Auth
 	ErrInvalidCredentials = New(710, "Invalid username or password", 401)

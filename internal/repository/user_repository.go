@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 
-	"ojeg/internal/user/domain"
+	"ojeg/internal/domain"
 )
 
 type UserRepository interface {
@@ -13,4 +13,5 @@ type UserRepository interface {
 	FindByEmail(ctx context.Context, email string) (*domain.User, error)
 	Update(ctx context.Context, user *domain.User) error
 	Delete(ctx context.Context, id uint) error
+	FindByEmailOrUsername(ctx context.Context, value string) (*domain.User, error)
 }

@@ -8,10 +8,15 @@ import (
 )
 
 type BaseResponse struct {
-	Status string      `json:"status"` // success, error, warning
-	Code   int         `json:"code"`   // app-specific code (e.g. 0 = OK, 701 = error)
+	Status string      `json:"status"`
+	Code   int         `json:"code"` // app-specific code (e.g. 0 = OK, 701 = error)
 	Data   interface{} `json:"data,omitempty"`
 	Error  interface{} `json:"error,omitempty"`
+}
+type ErrorResponse struct {
+	Status  string `json:"status"`
+	Code    int    `json:"code"`
+	Message string `json:"message"`
 }
 
 // Success sends a success response
@@ -39,14 +44,25 @@ func Warning(w http.ResponseWriter, code int, message string) {
 }
 
 // Error sends an error response using your AppError
-func Error(w http.ResponseWriter, appErr *errors.AppError) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(appErr.HTTPStatus)
-	json.NewEncoder(w).Encode(BaseResponse{
-		Status: "error",
-		Code:   appErr.Code,
-		Error: map[string]interface{}{
-			"message": appErr.Message,
-		},
-	})
+func Error(w http.ResponseWriter, err interface{}) {
+	var res ErrorResponse
+
+	res.Status = "error"
+
+	switch e := err.(type) {
+	case *errors.AppError:
+		res.Code = e.Code
+		res.Message = e.Message
+		w.WriteHeader(e.HTTPStatus)
+	case string:
+		res.Code = 700
+		res.Message = e
+		w.WriteHeader(http.StatusBadRequest)
+	default:
+		res.Code = 999
+		res.Message = "Internal server error"
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+
+	json.NewEncoder(w).Encode(res)
 }

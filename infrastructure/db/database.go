@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"ojeg/internal/user/domain"
+	"ojeg/internal/domain"
 )
 
 type DBConfig struct {

@@ -2,8 +2,8 @@ package db
 
 import (
 	"context"
-	"ojeg/internal/user/domain"
-	"ojeg/internal/user/repository"
+	"ojeg/internal/domain"
+	"ojeg/internal/repository"
 
 	"gorm.io/gorm"
 )
@@ -50,4 +50,15 @@ func (r *userRepository) Update(ctx context.Context, user *domain.User) error {
 
 func (r *userRepository) Delete(ctx context.Context, id uint) error {
 	return r.db.WithContext(ctx).Delete(&domain.User{}, id).Error
+}
+
+func (r *userRepository) FindByEmailOrUsername(ctx context.Context, value string) (*domain.User, error) {
+	var user domain.User
+	err := r.db.WithContext(ctx).
+		Where("email = ? OR user_name = ?", value, value).
+		First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
 }

@@ -2,7 +2,7 @@ package usecase
 
 import (
 	"context"
-	"ojeg/internal/user/domain"
+	"ojeg/internal/domain"
 )
 
 type UserUsecase interface {
