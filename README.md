@@ -204,7 +204,4 @@ All responses are wrapped in a standard structure:
 
 ## 📝 License
 
-MIT License © 2025 - Built with 💙 by \Hoeril Ahyar
-
-```
-```
+MIT License © 2025 — Built with 💙 by [Hoeril Ahyar](https://www.linkedin.com/in/hoeril-ahyar/)
