@@ -91,30 +91,50 @@ development:
     password: dev_password
     name: ojeg_dev
     sslmode: disable
+
+production:
+  app_name: "Ojeg Production"
+  db:
+    driver: mysql
+    host: prod.db.example.com
+    port: 3306
+    user: prod_user
+    password: prod_password
+    name: ojeg_prod
+    sslmode: require
 ```
 
 ---
 
 ## 📦 Setup & Usage
 
-### Run the Server
+### Run the Server with `go run`
 
 ```bash
 go run cmd/main.go
+```
+### Or with air (Live reload):
+First, install air if you haven't:
+```bash
+go install github.com/cosmtrek/air@latest
+```
+then run: 
+```bash
+air
 ```
 
 ### Run Migrations
 
 ```bash
-go run cmd/main.go migrate
-go run cmd/main.go migrate:rollback
-go run cmd/main.go migrate:refresh
+go run ojeg migrate
+go run ojeg migrate:rollback
+go run ojeg migrate:refresh
 ```
 
 ### Create Migration File
 
 ```bash
-go run cmd/main.go make:migration CreateUserTable
+go run ojeg make:migration CreateUserTable
 ```
 
 ---
