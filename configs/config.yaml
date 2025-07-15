@@ -1,0 +1,32 @@
+default:
+  app_name: "Ojeg Default"
+  db:
+    driver: mysql
+    host: localhost
+    port: 3306
+    user: root
+    password: toor
+    name: ojeg
+    sslmode: disable
+
+development:
+  app_name: "Ojeg Development"
+  db:
+    driver: mysql
+    host: localhost
+    port: 3306
+    user: dev_user
+    password: dev_password
+    name: ojeg_dev
+    sslmode: disable
+
+production:
+  app_name: "Ojeg Production"
+  db:
+    driver: mysql
+    host: prod.db.example.com
+    port: 3306
+    user: prod_user
+    password: prod_password
+    name: ojeg_prod
+    sslmode: require
