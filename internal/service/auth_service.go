@@ -5,6 +5,7 @@ import (
 	"ojeg/pkg/errors"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -31,7 +32,7 @@ func AuthService(userRepo repository.UserRepository, jwtService jwt.JWTService) 
 // Register creates a new user with hashed password
 func (a *authService) Register(ctx context.Context, req *domain.RegisterRequest) error {
 	// Check if user already exists
-	existingUser, _ := a.userRepo.FindByEmail(ctx, req.Email)
+	existingUser, _ := a.userRepo.FindUserByEmail(ctx, req.Email)
 	if existingUser != nil {
 		return errors.ErrUserExists
 	}
@@ -47,15 +48,19 @@ func (a *authService) Register(ctx context.Context, req *domain.RegisterRequest)
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: string(hashedPassword),
-		Role:     "user",
+		Roles: []domain.Role{
+			{
+				Name: "user",
+			},
+		},
 	}
 
-	return a.userRepo.Create(ctx, user)
+	return a.userRepo.CreateUser(ctx, user)
 }
 
 // Login authenticates the user and returns a JWT token
 func (a *authService) Login(ctx context.Context, req *domain.AuthRequest) (domain.LoginResponse, error) {
-	user, err := a.userRepo.FindByEmailOrUsername(ctx, req.UserName)
+	user, err := a.userRepo.FindUserByEmailOrUsername(ctx, req.UserName)
 	if err != nil {
 		return domain.LoginResponse{}, errors.ErrInvalidCredentials
 	}
@@ -66,8 +71,14 @@ func (a *authService) Login(ctx context.Context, req *domain.AuthRequest) (domai
 		return domain.LoginResponse{}, errors.ErrInvalidCredentials
 	}
 
+	var roleNames []string
+	for _, r := range user.Roles {
+		roleNames = append(roleNames, r.Name)
+	}
+	roleString := strings.Join(roleNames, ",")
+
 	// Generate JWT token
-	token, err := a.jwtService.GenerateToken(user.ID, user.Email, user.Role)
+	token, err := a.jwtService.GenerateToken(user.ID, user.Email, roleString)
 	if err != nil {
 		return domain.LoginResponse{}, errors.ErrInvalidCredentials
 	}

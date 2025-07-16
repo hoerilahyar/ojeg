@@ -21,7 +21,7 @@ func UserService(userRepo repository.UserRepository) usecase.UserUsecase {
 }
 
 func (s *userService) ListUsers(ctx context.Context) ([]*domain.User, error) {
-	return s.userRepo.FindAll(ctx)
+	return s.userRepo.FindAllUser(ctx)
 }
 
 func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
@@ -38,7 +38,7 @@ func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
 
 	user.Password = string(hashedPassword)
 
-	err = s.userRepo.Create(ctx, user)
+	err = s.userRepo.CreateUser(ctx, user)
 	if err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
 			return errors.ErrUserExists
@@ -49,17 +49,17 @@ func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
 }
 
 func (s *userService) GetUserByID(ctx context.Context, id uint) (*domain.User, error) {
-	return s.userRepo.FindByID(ctx, id)
+	return s.userRepo.FindUserByID(ctx, id)
 }
 
 func (s *userService) GetUserByEmail(ctx context.Context, email string) (*domain.User, error) {
-	return s.userRepo.FindByEmail(ctx, email)
+	return s.userRepo.FindUserByEmail(ctx, email)
 }
 
 func (s *userService) UpdateUser(ctx context.Context, user *domain.User) error {
-	return s.userRepo.Update(ctx, user)
+	return s.userRepo.UpdateUser(ctx, user)
 }
 
 func (s *userService) DeleteUser(ctx context.Context, id uint) error {
-	return s.userRepo.Delete(ctx, id)
+	return s.userRepo.DeleteUser(ctx, id)
 }

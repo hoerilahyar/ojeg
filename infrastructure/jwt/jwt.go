@@ -11,6 +11,7 @@ import (
 // JWTService defines the interface for generating JWT tokens
 type JWTService interface {
 	GenerateToken(userID uint, email string, role string) (string, error)
+	ValidateToken(tokenString string) (*jwt.Token, jwt.MapClaims, error)
 }
 
 type jwtService struct {
@@ -49,12 +50,21 @@ func (j *jwtService) GenerateToken(userID uint, email string, role string) (stri
 	return token.SignedString([]byte(j.secretKey))
 }
 
-func (j *jwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
-	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Ensure token method is HMAC
+func (j *jwtService) ValidateToken(tokenString string) (*jwt.Token, jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
 		return []byte(j.secretKey), nil
 	})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return token, claims, nil
+	}
+
+	return nil, nil, jwt.ErrInvalidKey
 }

@@ -59,10 +59,19 @@ func NewDB(config DBConfig) (*DB, error) {
 	}
 
 	// AutoMigrate domain models (you can extract this later into its own function)
-	err = db.AutoMigrate(&domain.User{})
+	err = db.AutoMigrate(
+		&domain.User{},
+		&domain.Role{},
+		&domain.Permission{},
+		&domain.UserRole{},
+		&domain.UserPermission{},
+		&domain.RolePermission{},
+	)
 	if err != nil {
 		log.Fatalf("❌ AutoMigrate failed: %v", err)
 	}
+
+	Seed(db)
 
 	log.Println("✅ Connected using", config.Driver)
 	return db, nil

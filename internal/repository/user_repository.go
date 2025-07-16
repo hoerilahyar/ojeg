@@ -7,11 +7,11 @@ import (
 )
 
 type UserRepository interface {
-	FindAll(ctx context.Context) ([]*domain.User, error)
-	Create(ctx context.Context, user *domain.User) error
-	FindByID(ctx context.Context, id uint) (*domain.User, error)
-	FindByEmail(ctx context.Context, email string) (*domain.User, error)
-	Update(ctx context.Context, user *domain.User) error
-	Delete(ctx context.Context, id uint) error
-	FindByEmailOrUsername(ctx context.Context, value string) (*domain.User, error)
+	FindAllUser(ctx context.Context) ([]*domain.User, error)
+	CreateUser(ctx context.Context, user *domain.User) error
+	FindUserByID(ctx context.Context, id uint) (*domain.User, error)
+	FindUserByEmail(ctx context.Context, email string) (*domain.User, error)
+	UpdateUser(ctx context.Context, user *domain.User) error
+	DeleteUser(ctx context.Context, id uint) error
+	FindUserByEmailOrUsername(ctx context.Context, value string) (*domain.User, error)
 }
