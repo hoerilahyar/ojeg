@@ -31,7 +31,7 @@ func NewHandlerRegistry(database *db.DB) *HandlerRegistry {
 
 	// Services
 	userService := service.UserService(userRepo)
-	authService := service.AuthService(userRepo, jwt.NewJWTService(secret, issuer))
+	authService := service.AuthService(userRepo, roleRepo, jwt.NewJWTService(secret, issuer))
 	roleService := service.RoleService(roleRepo)
 	permissionService := service.PermissionService(permissionRepo)
 	authorizeService := service.AuthorizeService(authorizeRepo)

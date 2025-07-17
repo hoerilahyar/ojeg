@@ -14,4 +14,5 @@ type UserRepository interface {
 	UpdateUser(ctx context.Context, user *domain.User) error
 	DeleteUser(ctx context.Context, id uint) error
 	FindUserByEmailOrUsername(ctx context.Context, value string) (*domain.User, error)
+	FindUserByIDWithPermissions(ctx context.Context, id uint) (*domain.User, error)
 }

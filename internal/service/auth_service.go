@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"ojeg/pkg/errors"
 	"os"
 	"strconv"
@@ -18,13 +19,15 @@ import (
 
 type authService struct {
 	userRepo   repository.UserRepository
+	roleRepo   repository.RoleRepository
 	jwtService jwt.JWTService
 }
 
 // AuthService creates a new AuthUsecase implementation
-func AuthService(userRepo repository.UserRepository, jwtService jwt.JWTService) usecase.AuthUsecase {
+func AuthService(userRepo repository.UserRepository, roleRepo repository.RoleRepository, jwtService jwt.JWTService) usecase.AuthUsecase {
 	return &authService{
 		userRepo:   userRepo,
+		roleRepo:   roleRepo,
 		jwtService: jwtService,
 	}
 }
@@ -33,6 +36,7 @@ func AuthService(userRepo repository.UserRepository, jwtService jwt.JWTService) 
 func (a *authService) Register(ctx context.Context, req *domain.RegisterRequest) error {
 	// Check if user already exists
 	existingUser, _ := a.userRepo.FindUserByEmail(ctx, req.Email)
+
 	if existingUser != nil {
 		return errors.ErrUserExists
 	}
@@ -43,24 +47,39 @@ func (a *authService) Register(ctx context.Context, req *domain.RegisterRequest)
 		return err
 	}
 
+	role, err := a.roleRepo.GetRoleByName(ctx, "user")
+
+	if err != nil || role == nil {
+		return errors.ErrConflict
+	}
+
 	user := &domain.User{
-		UserName: req.UserName,
+		Username: req.Username,
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: string(hashedPassword),
-		Roles: []domain.Role{
-			{
-				Name: "user",
-			},
-		},
+		Roles:    []domain.Role{*role},
 	}
+	fmt.Println(user)
 
-	return a.userRepo.CreateUser(ctx, user)
+	err = a.userRepo.CreateUser(ctx, user)
+
+	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "doesn't have a default value") {
+			return errors.ErrInvalidPayload
+		}
+
+		if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
+			return errors.ErrUserExists
+		}
+		return errors.ErrInternalError
+	}
+	return nil
 }
 
 // Login authenticates the user and returns a JWT token
 func (a *authService) Login(ctx context.Context, req *domain.AuthRequest) (domain.LoginResponse, error) {
-	user, err := a.userRepo.FindUserByEmailOrUsername(ctx, req.UserName)
+	user, err := a.userRepo.FindUserByEmailOrUsername(ctx, req.Username)
 	if err != nil {
 		return domain.LoginResponse{}, errors.ErrInvalidCredentials
 	}

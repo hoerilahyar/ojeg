@@ -55,7 +55,7 @@ func (r *userRepository) DeleteUser(ctx context.Context, id uint) error {
 func (r *userRepository) FindUserByEmailOrUsername(ctx context.Context, value string) (*domain.User, error) {
 	var user domain.User
 	err := r.db.WithContext(ctx).
-		Where("email = ? OR user_name = ?", value, value).
+		Where("email = ? OR username = ?", value, value).
 		First(&user).Error
 	if err != nil {
 		return nil, err
@@ -73,5 +73,27 @@ func (r *userRepository) FindByEmailOrUsername(ctx context.Context, value string
 	if err != nil {
 		return nil, err
 	}
+	return &user, nil
+}
+
+func (r *userRepository) FindUserByIDWithPermissions(ctx context.Context, id uint) (*domain.User, error) {
+	var user domain.User
+	if err := r.db.WithContext(ctx).
+		Preload("Roles.Permissions"). // penting!
+		First(&user, id).Error; err != nil {
+		return nil, err
+	}
+
+	// Gabungkan permissions dari semua role
+	permMap := make(map[string]bool)
+	for _, role := range user.Roles {
+		for _, perm := range role.Permissions {
+			if !permMap[perm.Name] {
+				user.Permissions = append(user.Permissions, perm)
+				permMap[perm.Name] = true
+			}
+		}
+	}
+
 	return &user, nil
 }

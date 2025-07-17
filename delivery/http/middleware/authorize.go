@@ -3,15 +3,14 @@ package middleware
 import (
 	"context"
 	"net/http"
-	"strings"
-
-	jwtInfra "ojeg/infrastructure/jwt"
+	"ojeg/infrastructure/jwt"
 	"ojeg/internal/repository"
 	"ojeg/pkg/errors"
 	"ojeg/pkg/response"
+	"strings"
 )
 
-func JWTMiddleware(jwtService jwtInfra.JWTService, userRepo repository.UserRepository) func(http.Handler) http.Handler {
+func JWTMiddleware(jwtService jwt.JWTService, userRepo repository.UserRepository) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -27,14 +26,9 @@ func JWTMiddleware(jwtService jwtInfra.JWTService, userRepo repository.UserRepos
 				return
 			}
 
-			userIDFloat, ok := claims["user_id"].(float64)
-			if !ok {
-				response.Error(w, errors.ErrUnauthorized)
-				return
-			}
-			userID := uint(userIDFloat)
+			userID := uint(claims["user_id"].(float64))
+			user, err := userRepo.FindUserByIDWithPermissions(r.Context(), userID)
 
-			user, err := userRepo.FindUserByID(r.Context(), userID)
 			if err != nil {
 				response.Error(w, errors.ErrUnauthorized)
 				return

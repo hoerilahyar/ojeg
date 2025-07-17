@@ -40,6 +40,10 @@ func (s *userService) CreateUser(ctx context.Context, user *domain.User) error {
 
 	err = s.userRepo.CreateUser(ctx, user)
 	if err != nil {
+		if strings.Contains(strings.ToLower(err.Error()), "doesn't have a default value") {
+			return errors.ErrInvalidPayload
+		}
+
 		if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
 			return errors.ErrUserExists
 		}

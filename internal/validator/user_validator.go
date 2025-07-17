@@ -8,7 +8,7 @@ import (
 
 func ValidateRegisterInput(req *domain.RegisterRequest) *errors.AppError {
 	if strings.TrimSpace(req.Name) == "" ||
-		strings.TrimSpace(req.UserName) == "" ||
+		strings.TrimSpace(req.Username) == "" ||
 		strings.TrimSpace(req.Email) == "" ||
 		strings.TrimSpace(req.Password) == "" {
 		return errors.ErrMissingFields

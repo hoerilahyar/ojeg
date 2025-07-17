@@ -11,4 +11,5 @@ type RoleRepository interface {
 	CreateRole(ctx context.Context, role *domain.Role) error
 	UpdateRole(ctx context.Context, role *domain.Role) error
 	DeleteRole(ctx context.Context, id uint) error
+	GetRoleByName(ctx context.Context, name string) (*domain.Role, error)
 }

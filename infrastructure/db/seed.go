@@ -12,8 +12,9 @@ func Seed(db *gorm.DB) {
 
 	// Seed roles
 	roles := []domain.Role{
-		{Name: "admin"},
-		{Name: "user"},
+		{Name: "super admin", Slug: "super-admin"},
+		{Name: "admin", Slug: "admin"},
+		{Name: "user", Slug: "user"},
 	}
 
 	for _, r := range roles {
@@ -29,8 +30,8 @@ func Seed(db *gorm.DB) {
 
 	// Seed permissions
 	permissions := []domain.Permission{
-		{Name: "manage_users"},
-		{Name: "manage_roles"},
+		{Name: "Manage Users", Slug: "manage-users"},
+		{Name: "Manage Roles", Slug: "manage-roles"},
 	}
 
 	for _, p := range permissions {
@@ -45,9 +46,9 @@ func Seed(db *gorm.DB) {
 	}
 
 	// Seed admin user
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
 	admin := domain.User{
-		UserName: "admin",
+		Username: "admin",
 		Name:     "Administrator",
 		Email:    "admin@example.com",
 		Password: string(hashedPassword),
@@ -60,7 +61,7 @@ func Seed(db *gorm.DB) {
 
 			// Associate role
 			var adminRole domain.Role
-			if err := db.Where("name = ?", "admin").First(&adminRole).Error; err == nil {
+			if err := db.Where("slug = ?", "super-admin").First(&adminRole).Error; err == nil {
 				db.Model(&admin).Association("Roles").Append(&adminRole)
 				log.Println("✅ Admin role assigned to user")
 			}

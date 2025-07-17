@@ -12,9 +12,11 @@ var (
 	ErrValNotString    = New(708, "Not String aceppted", 400)
 
 	// Auth
-	ErrInvalidCredentials = New(710, "Invalid username or password", 401)
-	ErrTokenExpired       = New(711, "Token has expired", 401)
-	ErrTokenInvalid       = New(712, "Invalid token", 401)
+	ErrInvalidCredentials    = New(710, "Invalid username or password", 401)
+	ErrTokenExpired          = New(711, "Token has expired", 401)
+	ErrTokenInvalid          = New(712, "Invalid token", 401)
+	ErrForbiddenPermission   = New(713, "Missing permission", 401)
+	ErrForbiddenAccessDenied = New(714, "Access Denied", 401)
 
 	// User
 	ErrUserExists   = New(720, "User already exists", 409)

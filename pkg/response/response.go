@@ -60,7 +60,7 @@ func Error(w http.ResponseWriter, err interface{}) {
 		w.WriteHeader(http.StatusBadRequest)
 	default:
 		res.Code = 999
-		res.Message = "Internal server error"
+		res.Message = "Internal server error : " + err.(string)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 

@@ -9,7 +9,7 @@ import (
 type User struct {
 	ID uint `gorm:"primaryKey" json:"id"`
 
-	UserName    string         `gorm:"type:varchar(100);uniqueIndex;not null" json:"username"`
+	Username    string         `gorm:"type:varchar(100);uniqueIndex;not null" json:"username"`
 	Name        string         `gorm:"type:varchar(100);not null" json:"name"`
 	Email       string         `gorm:"type:varchar(100);uniqueIndex;not null" json:"email"`
 	Password    string         `gorm:"type:varchar(255);not null" json:"password"`
@@ -21,12 +21,12 @@ type User struct {
 }
 
 type AuthRequest struct {
-	UserName string `json:"username"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
 type RegisterRequest struct {
-	UserName string `json:"username"`
+	Username string `json:"username"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -75,9 +75,18 @@ func (u *User) GetAllPermissions() []string {
 	return permissions
 }
 
-func (u *User) HasPermission(name string) bool {
-	for _, perm := range u.GetAllPermissions() {
-		if perm == name {
+func (u *User) HasPermission(permissionSlug string) bool {
+	for _, permission := range u.Permissions {
+		if permission.Slug == permissionSlug {
+			return true
+		}
+	}
+	return false
+}
+
+func (u *User) HasRole(roleSlug string) bool {
+	for _, role := range u.Roles {
+		if role.Slug == roleSlug {
 			return true
 		}
 	}

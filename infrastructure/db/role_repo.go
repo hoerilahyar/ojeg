@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 
 	"ojeg/internal/domain"
 	"ojeg/internal/repository"
@@ -43,4 +44,13 @@ func (r *roleRepository) UpdateRole(ctx context.Context, role *domain.Role) erro
 
 func (r *roleRepository) DeleteRole(ctx context.Context, id uint) error {
 	return r.db.WithContext(ctx).Delete(&domain.Role{}, id).Error
+}
+
+func (r *roleRepository) GetRoleByName(ctx context.Context, name string) (*domain.Role, error) {
+	fmt.Println(name)
+	var role domain.Role
+	if err := r.db.WithContext(ctx).Where("name = ?", name).First(&role).Error; err != nil {
+		return nil, err
+	}
+	return &role, nil
 }
